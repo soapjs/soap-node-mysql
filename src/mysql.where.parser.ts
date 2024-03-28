@@ -1,20 +1,30 @@
-import { WhereCondition, Condition, NestedCondition, WhereOperator } from "@soapjs/soap";
+import {
+  WhereCondition,
+  Condition,
+  NestedCondition,
+  WhereOperator,
+  Where,
+} from "@soapjs/soap";
 
 export class MySqlWhereParser {
-  static parse(whereCondition: WhereCondition | null): {
+  static parse(data: Where | WhereCondition | null): {
     query: string;
     values: any[];
   } {
-    if (!whereCondition) {
+    if (!data) {
       return { query: "1=1", values: [] };
     }
 
-    if ("left" in whereCondition) {
-      return MySqlWhereParser.parseSimpleCondition(whereCondition);
+    if (data instanceof Where) {
+      return MySqlWhereParser.parse(data.result);
     }
 
-    if ("conditions" in whereCondition) {
-      return MySqlWhereParser.parseNestedCondition(whereCondition);
+    if ("left" in data) {
+      return MySqlWhereParser.parseSimpleCondition(data);
+    }
+
+    if ("conditions" in data) {
+      return MySqlWhereParser.parseNestedCondition(data);
     }
 
     throw new Error("Invalid condition format");
